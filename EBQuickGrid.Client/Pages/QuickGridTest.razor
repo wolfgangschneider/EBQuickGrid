@@ -1,0 +1,73 @@
+@page "/"
+@rendermode InteractiveAuto
+@using EBQuickGridLib
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+<PageTitle>EBQuickGrid</PageTitle>
+
+<h1>EBQuickGrid</h1>
+
+<EBQuickGrid Items="@FilteredItems" Pagination="@_pagination">
+    <PropertyColumn Property="@(p => p.Id)" Sortable="true">
+        <ColumnOptions>
+            <input type="search" placeholder="Filter" @bind="FilterId" @bind:event="oninput" />
+        </ColumnOptions>
+    </PropertyColumn>
+    <PropertyColumn Property="@(p => p.Name)" Sortable="true">
+        <ColumnOptions>
+            <input type="search" placeholder="Filter" @bind="FilterName" @bind:event="oninput" />
+        </ColumnOptions>
+    </PropertyColumn>
+    <PropertyColumn Property="@(p => p.City)" Sortable="true">
+        <ColumnOptions>
+            <input type="search" placeholder="Filter" @bind="FilterCity" @bind:event="oninput" />
+        </ColumnOptions>
+    </PropertyColumn>
+    <PropertyColumn Property="@(p => p.Birthday)" Format="dd.MM.yyyy" Sortable="true">
+        <ColumnOptions>
+            <input type="search" placeholder="Filter" @bind="FilterBirthday" @bind:event="oninput" />
+        </ColumnOptions>
+    </PropertyColumn>
+    <PropertyColumn Property="@(p => p.Salary)" Format="N2" Sortable="true">
+        <ColumnOptions>
+            <input type="search" placeholder="Filter" @bind="FilterSalary" @bind:event="oninput" />
+        </ColumnOptions>
+    </PropertyColumn>
+</EBQuickGrid>
+
+<Paginator State="@_pagination" />
+
+@code {
+    private readonly PaginationState _pagination = new() { ItemsPerPage = 10 };
+    private List<Person> _all = [];
+
+    private string _filterId = "", _filterName = "", _filterCity = "", _filterBirthday = "", _filterSalary = "";
+    private string FilterId { get => _filterId; set { _filterId = value; _ = _pagination.SetCurrentPageIndexAsync(0); } }
+    private string FilterName { get => _filterName; set { _filterName = value; _ = _pagination.SetCurrentPageIndexAsync(0); } }
+    private string FilterCity { get => _filterCity; set { _filterCity = value; _ = _pagination.SetCurrentPageIndexAsync(0); } }
+    private string FilterBirthday { get => _filterBirthday; set { _filterBirthday = value; _ = _pagination.SetCurrentPageIndexAsync(0); } }
+    private string FilterSalary { get => _filterSalary; set { _filterSalary = value; _ = _pagination.SetCurrentPageIndexAsync(0); } }
+
+    private IQueryable<Person> FilteredItems => _all.Where(p =>
+        Contains(p.Id.ToString(), _filterId)
+        && Contains(p.Name, _filterName)
+        && Contains(p.City, _filterCity)
+        && Contains(p.Birthday.ToString("dd.MM.yyyy"), _filterBirthday)
+        && Contains(p.Salary.ToString("N2"), _filterSalary)).AsQueryable();
+
+    private static bool Contains(string value, string filter) =>
+        string.IsNullOrWhiteSpace(filter) || value.Contains(filter.Trim(), StringComparison.OrdinalIgnoreCase);
+
+    protected override void OnInitialized()
+    {
+        var cities = new[] { "Wien", "Graz", "Linz", "Salzburg", "Innsbruck" };
+        _all = Enumerable.Range(1, 57).Select(i => new Person(
+            i,
+            $"Person {i:00}",
+            cities[i % cities.Length],
+            new DateOnly(1970 + i % 30, 1 + i % 12, 1 + i % 28),
+            2000m + i * 37.5m)).ToList();
+    }
+
+    private sealed record Person(int Id, string Name, string City, DateOnly Birthday, decimal Salary);
+}
