@@ -45,7 +45,7 @@ Name (confirmed in #66830 and #69132): `Microsoft.AspNetCore.Components.QuickGri
 - It does not disable reading and writing the URL state, according to the docs as read in #69132: QuickGrid still reads and writes the URL.
 - There is also a project file variant (`RuntimeHostConfigurationOption`) that is not in the docs that were checked.
 - Untested with trimming (the test in #69132 was inconclusive).
-- Consequence for EBPackages: the switch alone does not keep the URL clean. That is why `SilentNavigationManager` is needed as well (see below).
+- Consequence: the switch alone does not keep the URL clean. That is why the `EBQuickGrid` library also replaces QuickGrid's NavigationManager with `SilentNavigationManager`, which never writes to the browser address bar.
 
 ## Most controversial places
 
@@ -57,19 +57,6 @@ There is hardly any real debate in the threads (#66830 has 3 comments, 2 of them
 | [#69132](https://github.com/dotnet/aspnetcore/issues/69132) | The change is not documented in the .NET 11 breaking changes (reference to #65023, undocumented QuickGrid rendering changes). The switch restores only the markup, not the URL behavior. On Interactive Server the URL now changes, and Back/Forward moves through grid states. `sort=name` does not work, `sort=Name` does (case sensitivity). |
 | [#69129](https://github.com/dotnet/aspnetcore/issues/69129) | The docs named `QueryParameterNamePrefix`, the implementation uses `QueryParameterNameOptions`. Docs were corrected in AspNetCore.Docs PR #37632. |
 | [#69127](https://github.com/dotnet/aspnetcore/issues/69127) | No problems reported. `sort` takes the column title, `direction` takes asc/desc. Interactive Auto and standalone WebAssembly were not tested (relevant for this sample, which uses Auto). |
-
-## Handling in EBPackages
-
-The standalone `src/EBQuickGrid` project no longer exists in EBPackages. The code moved into EBLob (`src/EBLob/EBLob/Components/EBQuickGridPanel`). The `EBQuickGrid` project (assembly `EBQuickGrid.dll`) in this repository is the old standalone version and is only a snapshot.
-
-Current approach in EBLob:
-
-- `EBQuickGridPanelModuleInit` sets `Microsoft.AspNetCore.Components.QuickGrid.EnableUrlBasedQuickGridNavigationAndSorting` to `false` (headers are buttons again). The comment there records a live test (2026-09-16): with the switch left on, clicking the `<a>` header goes through Blazor's enhanced navigation and still writes `?sort=..&direction=..`, so the switch has to stay off.
-- `EBQuickGridUrlStateMode` controls the URL state: `Disabled` (never write), `Enabled` (always write) and `EnableOnlySSR`. `EnableOnlySSR` is not functional and throws `NotSupportedException`, because `<a>`-driven navigation cannot be intercepted (see #69132).
-- For `Disabled`, `EBQuickGrid` replaces QuickGrid's NavigationManager via UnsafeAccessor before `OnParametersSetAsync` with a `SilentNavigationManager2`. It only sets its own `Uri` and raises `LocationChanged`, so the `Paginator` keeps working while the browser address bar is never touched. For `Enabled` the real NavigationManager is restored.
-- The `Paginator` child cannot be swapped to the silent NavigationManager (it subscribes to the real one in its own initialization); this was tried twice and is documented as a dead end in the code.
-
-Risk: this accesses internal members of QuickGrid and depends on the exact version.
 
 ## Sources
 
