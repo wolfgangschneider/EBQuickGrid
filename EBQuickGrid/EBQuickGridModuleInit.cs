@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace EBQuickGridLib;
+namespace EBQuickGrid;
 
 internal static class EBQuickGridModuleInit
 {

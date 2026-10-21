@@ -1,5 +1,5 @@
 using EBQuickGrid.Client.Pages;
-using EBQuickGrid.Components;
+using EBQuickGrid.Server.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 

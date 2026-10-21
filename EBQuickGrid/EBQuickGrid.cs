@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.QuickGrid;
 
-namespace EBQuickGridLib;
+namespace EBQuickGrid;
 
 /// <summary>
 /// A <see cref="QuickGrid{TGridItem}"/> that never writes sort/page state to the URL (query parameters).

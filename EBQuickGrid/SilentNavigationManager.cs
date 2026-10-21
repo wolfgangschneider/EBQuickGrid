@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace EBQuickGridLib;
+namespace EBQuickGrid;
 
 // Pretends to be the NavigationManager, but only updates its own Uri/LocationChanged -
 // the real browser address bar is never touched.

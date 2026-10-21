@@ -8,10 +8,18 @@ The repository pins the .NET SDK in `global.json` (11.0.100 preview, `rollForwar
 
 ```
 dotnet build EBQuickGrid.sln
-dotnet run --project EBQuickGrid/EBQuickGrid.csproj
+dotnet run --project EBQuickGrid.Server/EBQuickGrid.Server.csproj
 ```
 
-The test page (`/`) shows `EBQuickGrid` with test data and a filter per column, rendered with `InteractiveAuto`.
+The test page (`/`) shows `EBQuickGrid` with test data and a filter per column, rendered with `InteractiveAuto`. Start `EBQuickGrid.Server`.
+
+## Projects
+
+| Project | Purpose |
+|---|---|
+| `EBQuickGrid` | Class library (assembly `EBQuickGrid.dll`, namespace `EBQuickGrid`): `EBQuickGrid<TGridItem>`, `SilentNavigationManager`, `QuickGridUnsafeAccess`, module initializer that turns off the URL-based QuickGrid switch |
+| `EBQuickGrid.Client` | Blazor WebAssembly client with the test page `Pages/QuickGridTest.razor` |
+| `EBQuickGrid.Server` | Blazor Web App host (`InteractiveAuto`) |
 
 ## What changes
 
@@ -52,7 +60,7 @@ There is hardly any real debate in the threads (#66830 has 3 comments, 2 of them
 
 ## Handling in EBPackages
 
-The standalone `src/EBQuickGrid` project no longer exists in EBPackages. The code moved into EBLob (`src/EBLob/EBLob/Components/EBQuickGridPanel`). The copy in `EBQuickGrid.Client/EBQuickGridLib` of this repository is the old standalone version and is only a snapshot.
+The standalone `src/EBQuickGrid` project no longer exists in EBPackages. The code moved into EBLob (`src/EBLob/EBLob/Components/EBQuickGridPanel`). The `EBQuickGrid` project (assembly `EBQuickGrid.dll`) in this repository is the old standalone version and is only a snapshot.
 
 Current approach in EBLob:
 
