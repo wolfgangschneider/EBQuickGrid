@@ -52,11 +52,14 @@ There is hardly any real debate in the threads (#66830 has 3 comments, 2 of them
 
 ## Handling in EBPackages
 
-`EBQuickGrid` (src/EBQuickGrid) turns the behavior off:
+The standalone `src/EBQuickGrid` project no longer exists in EBPackages. The code moved into EBLob (`src/EBLob/EBLob/Components/EBQuickGridPanel`). The copy in `EBQuickGrid.Client/EBQuickGridLib` of this repository is the old standalone version and is only a snapshot.
 
-- `EBQuickGridModuleInit` sets `Microsoft.AspNetCore.Components.QuickGrid.EnableUrlBasedQuickGridNavigationAndSorting` to `false` (headers are buttons again).
-- `SilentNavigationManager` intercepts the NavigateTo calls so that sort and page are not written to the URL.
-- `EBQuickGrid<TGridItem>` replaces QuickGrid's NavigationManager via UnsafeAccessor before `OnParametersSetAsync`.
+Current approach in EBLob:
+
+- `EBQuickGridPanelModuleInit` sets `Microsoft.AspNetCore.Components.QuickGrid.EnableUrlBasedQuickGridNavigationAndSorting` to `false` (headers are buttons again). The comment there records a live test (2026-09-16): with the switch left on, clicking the `<a>` header goes through Blazor's enhanced navigation and still writes `?sort=..&direction=..`, so the switch has to stay off.
+- `EBQuickGridUrlStateMode` controls the URL state: `Disabled` (never write), `Enabled` (always write) and `EnableOnlySSR`. `EnableOnlySSR` is not functional and throws `NotSupportedException`, because `<a>`-driven navigation cannot be intercepted (see #69132).
+- For `Disabled`, `EBQuickGrid` replaces QuickGrid's NavigationManager via UnsafeAccessor before `OnParametersSetAsync` with a `SilentNavigationManager2`. It only sets its own `Uri` and raises `LocationChanged`, so the `Paginator` keeps working while the browser address bar is never touched. For `Enabled` the real NavigationManager is restored.
+- The `Paginator` child cannot be swapped to the silent NavigationManager (it subscribes to the real one in its own initialization); this was tried twice and is documented as a dead end in the code.
 
 Risk: this accesses internal members of QuickGrid and depends on the exact version.
 
