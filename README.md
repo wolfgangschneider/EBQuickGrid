@@ -1,4 +1,4 @@
-# QuickGrid in .NET 11: URL-based sort and page state
+# QuickGrid in .NET 11 without URL-based sort and page state
 
 Date: 2026-10-21. Based on the GitHub issues #66830, #69132, #69127 and #69129 (fetched and summarized) and on search results for community articles. Statements are "according to the source" and must be verified against the version in use (here 11.0.0-rc.2.26504.105).
 
